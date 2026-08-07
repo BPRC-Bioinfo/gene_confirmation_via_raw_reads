@@ -1,0 +1,5 @@
+# Paths used by the coordinate pipeline
+bam_dir: /mnt/CGR_Analyse/HPRC_v2/raw-reads/aligned_bam/
+region_file: region_coordinates.bed
+input_excel: GCF_037993035.2_annotation_report_all.xlsx
+fasta_dir: /mnt/CGR_Analyse/HPRC_v2/raw-reads/raw_reads/haps/

@@ -1,0 +1,9 @@
+name: gene_matrix
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python
+  - biopython
+  - pandas
+  - pysam
