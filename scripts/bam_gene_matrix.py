@@ -1,7 +1,5 @@
-
-# Ver 0.0.4
+# Ver 0.0.5
 # Giang le
-
 
 #!/usr/bin/env python3
 
@@ -16,11 +14,11 @@ import pysam
 def usage():
     print(
         "\nUsage:\n"
-        "  python bam_gene_matrix4.py <input.bam> <reference.fa> <chrom> "
+        "  python bam_gene_matrix.py <input.bam> <reference.fa> <chrom> "
         "<start_1based> <end_1based> <output_prefix>\n\n"
         "Example:\n"
-        "  python bam_gene_matrix4.py rin14_hap1_TRA.bam RiN14_hap1_TRA_contig.fa "
-        "hap1_RiN14_CM111665_2 94610322 94610597 rin14_TRA\n"
+        "  python bam_gene_matrix.py sample_hap1.bam sample_hap1_TRA_contig.fa "
+        "hap1_sample 94610322 94610597 sample_TRA\n"
     )
     sys.exit(1)
 
@@ -256,6 +254,10 @@ def main():
 
     all_read_calls = []
 
+    total_reads_seen = 0
+    reads_removed_full_deletion = 0
+    reads_written = 0
+
     try:
         with pysam.AlignmentFile(bam_path, "rb") as bam, pysam.FastaFile(ref_fasta_path) as ref:
             validate_contig(
@@ -284,11 +286,17 @@ def main():
             with open(matrix_out, "w") as matrix_fh, open(read_summary_out, "w") as read_fh:
                 matrix_fh.write(
                     "read_id\t"
-                    + "\t".join([f"gene_pos_{i + 1}" for i in range(gene_len)])
+                    + "\t".join(
+                        [f"gene_pos_{i + 1}" for i in range(gene_len)]
+                    )
                     + "\n"
                 )
 
-                matrix_fh.write("REFERENCE\t" + "\t".join(ref_seq) + "\n")
+                matrix_fh.write(
+                    "REFERENCE\t"
+                    + "\t".join(ref_seq)
+                    + "\n"
+                )
 
                 read_fh.write(
                     "read_id\t"
@@ -317,6 +325,8 @@ def main():
                     if read.is_unmapped or read.query_sequence is None:
                         continue
 
+                    total_reads_seen += 1
+
                     read_name = get_read_name(read)
 
                     calls = build_read_calls(
@@ -327,10 +337,35 @@ def main():
                         gene_len,
                     )
 
-                    matrix_fh.write(read_name + "\t" + "\t".join(calls) + "\n")
-                    all_read_calls.append(calls)
+                    # Remove reads where the entire requested gene region
+                    # is represented as a deletion.
+                    #
+                    # Example:
+                    #   - - - - - - - - - -
+                    #
+                    # This does NOT remove partial deletions such as:
+                    #   A C G - - - T A C G
+                    #
+                    # It also does NOT remove reads with uncovered "."
+                    # positions mixed with deletions.
+                    if all(base == "-" for base in calls):
+                        reads_removed_full_deletion += 1
+                        continue
 
-                    covered, matches, mismatches, deletions = summarize_read(calls, ref_seq)
+                    matrix_fh.write(
+                        read_name
+                        + "\t"
+                        + "\t".join(calls)
+                        + "\n"
+                    )
+
+                    all_read_calls.append(calls)
+                    reads_written += 1
+
+                    covered, matches, mismatches, deletions = summarize_read(
+                        calls,
+                        ref_seq,
+                    )
 
                     percent_identity = (
                         matches / covered * 100
@@ -338,7 +373,9 @@ def main():
                         else 0.0
                     )
 
-                    percent_gene_covered = covered / gene_len * 100
+                    percent_gene_covered = (
+                        covered / gene_len * 100
+                    )
 
                     read_fh.write(
                         f"{read_name}\t"
@@ -359,10 +396,18 @@ def main():
             gene_len,
         )
 
+        print()
         print("SUCCESS")
+        print()
         print(f"Wrote: {matrix_out}")
         print(f"Wrote: {read_summary_out}")
         print(f"Wrote: {position_summary_out}")
+        print()
+        print("Read filtering summary:")
+        print(f"  Reads examined:              {total_reads_seen}")
+        print(f"  Reads written:               {reads_written}")
+        print(f"  100% deletion reads removed: {reads_removed_full_deletion}")
+        print()
 
     except FileNotFoundError as e:
         print()

@@ -12,11 +12,9 @@ import pandas as pd
 
 configfile: "config/config.yaml"
 
-COORDINATE_TABLE = "rhesus_genes_coordinates_from_bam_bed.txt"
+SEGMENTS = ["V", "D", "J", "C"]
 
-SEGMENTS = ["V", "D", "J"]
-
-FASTA_DIR = config.get("fasta_dir", "/mnt/CGR_Analyse/HPRC_v2/raw-reads/raw_reads/haps/")
+FASTA_DIR = config.get("fasta_dir")
 
 print (FASTA_DIR)
 
@@ -233,7 +231,7 @@ rule run_region:
         echo "Start coord: $start_coord" >> "{log}"
         echo "End coord: $end_coord" >> "{log}"
         echo "Output prefix: $output_file" >> "{log}"
-        echo "python bam_gene_matrix4.py $bam $fasta $contig $start_coord $end_coord $output_file" >> "{log}"
+        echo "python bam_gene_matrix.py $bam $fasta $contig $start_coord $end_coord $output_file" >> "{log}"
 
         script_status="OK"
 
