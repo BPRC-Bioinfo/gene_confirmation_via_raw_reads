@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 
-configfile: "config/config_Susan.yaml"
+configfile: "config/config.yaml"
 
 SEGMENTS = ["V", "D", "J", "C"]
 
