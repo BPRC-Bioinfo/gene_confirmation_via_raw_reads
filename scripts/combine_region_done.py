@@ -100,7 +100,7 @@ for done_file in snakemake.input.done_files:
                         else:
                             ont_reads = value
 
-    key = (sample, shortname)
+    key = (sample, shortname, start_coord, end_coord)
 
     if key not in rows:
         rows[key] = {

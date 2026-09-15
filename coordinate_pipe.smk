@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 
-configfile: "config/config.yaml"
+configfile: "config/config_Susan.yaml"
 
 SEGMENTS = ["V", "D", "J", "C"]
 
@@ -315,4 +315,4 @@ rule combine_region_done:
     conda:
         "envs/gene_matrix.yaml"
     script:
-        "scripts/combine_v_region_done.py"
+        "scripts/combine_region_done.py"

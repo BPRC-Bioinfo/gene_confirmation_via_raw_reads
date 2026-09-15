@@ -275,6 +275,7 @@ read4       .           .           A           C           T
 The symbols have the following meanings:
 
 | Symbol | Meaning |
+|--------|---------|
 | A, C, G, T | Nucleotide observed in the read |
 | N | Ambiguous nucleotide call in the read |
 | - | Deletion relative to the reference at this position |
@@ -283,9 +284,11 @@ The symbols have the following meanings:
 
 In the above example:
 
-* read1 spans position 4, but the aligned read contains a deletion relative to the reference.
+* read1 contains a base (A) that does not match the reference
 
-* positions 1 and 2 are outside the portion of the target covered by read2.
+* read3 spans position 4, but the aligned read contains a deletion relative to the reference.
+
+* positions 1 and 2 are outside the portion of the target covered by read4.
 
 
 #### Read-vs-reference summary
@@ -382,7 +385,7 @@ For example:
 3:A88.89;G11.11 | 25:C77.78;T11.11;N11.11 | 26:A11.11;T88.89 | 27:C88.89;N11.11
 ```
 
-Interpreting N
+#### Interpreting N
 
 N represents an ambiguous nucleotide call. It means that due to no coverage the base sequence at that aligned position is reported as N rather than a specific nucleotide (A, C, G, or T).
 
