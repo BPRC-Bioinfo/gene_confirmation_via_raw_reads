@@ -122,6 +122,8 @@ rule make_region_run_table:
                 "segment": row["Segment"],
                 "region_id": row["region_id"],
                 "strand": row["Strand"],
+                "vdj_start_coord": int(row["Start coord"]),
+                "vdj_end_coord": int(row["End coord"]),
                 "start_coord": int(row["bam_invest_start_coord"]),
                 "end_coord": int(row["bam_invest_end_coord"]),
                 "fasta": str(fasta),
@@ -211,12 +213,14 @@ rule run_region:
         r"""
         mkdir -p "{params.outdir}"
 
-        bam=$(awk -F '\t' 'NR==2 {{print $15}}' "{input.job}")
-        fasta=$(awk -F '\t' 'NR==2 {{print $12}}' "{input.job}")
+        bam=$(awk -F '\t' 'NR==2 {{print $17}}' "{input.job}")
+        fasta=$(awk -F '\t' 'NR==2 {{print $14}}' "{input.job}")
         contig=$(awk -F '\t' 'NR==2 {{print $8}}' "{input.job}")
-        start_coord=$(awk -F '\t' 'NR==2 {{print $10}}' "{input.job}")
-        end_coord=$(awk -F '\t' 'NR==2 {{print $11}}' "{input.job}")
-        output_file=$(awk -F '\t' 'NR==2 {{print "results/"$16}}' "{input.job}")
+        vdj_start_coord=$(awk -F '\t' 'NR==2 {{print $10}}' "{input.job}")
+        vdj_end_coord=$(awk -F '\t' 'NR==2 {{print $11}}' "{input.job}")
+        start_coord=$(awk -F '\t' 'NR==2 {{print $12}}' "{input.job}")
+        end_coord=$(awk -F '\t' 'NR==2 {{print $13}}' "{input.job}")
+        output_file=$(awk -F '\t' 'NR==2 {{print "results/"$18}}' "{input.job}")
         sample_excel=$(awk -F '\t' 'NR==2 {{print $5}}' "{input.job}")
         shortname=$(awk -F '\t' 'NR==2 {{print $4}}' "{input.job}")
         strand=$(awk -F '\t' 'NR==2 {{print $9}}' "{input.job}")
@@ -228,8 +232,10 @@ rule run_region:
         echo "BAM: $bam" >> "{log}"
         echo "FASTA: $fasta" >> "{log}"
         echo "Contig: $contig" >> "{log}"
-        echo "Start coord: $start_coord" >> "{log}"
-        echo "End coord: $end_coord" >> "{log}"
+        echo "vdj_start_coord: $vdj_start_coord" >> "{log}"
+        echo "vdj_end_coord: $vdj_end_coord" >> "{log}"
+        echo "Genome_start_coord: $start_coord" >> "{log}"
+        echo "Genome_end_coord: $end_coord" >> "{log}"
         echo "Output prefix: $output_file" >> "{log}"
         echo "python bam_gene_matrix.py $bam $fasta $contig $start_coord $end_coord $output_file" >> "{log}"
 
@@ -285,8 +291,10 @@ rule run_region:
         echo "No. reads $sequencer : $total_reads" >> "{output.done}"
         echo "No. reads $sequencer 100% : $qualify_reads" >> "{output.done}"
         echo "Target ref: $ref" >> "{output.done}"
-        echo "Start coord: $start_coord" >> "{output.done}"
-        echo "End coord: $end_coord" >> "{output.done}"
+        echo "VDJ Start coord: $vdj_start_coord" >> "{output.done}"
+        echo "VDJ End coord: $vdj_end_coord" >> "{output.done}"
+        echo "Genome Start coord: $start_coord" >> "{output.done}"
+        echo "Genome End coord: $end_coord" >> "{output.done}"
         echo "Strand: $strand" >> "{output.done}"
         echo "Region: $region" >> "{output.done}"
         echo "Segment: $segment" >> "{output.done}"

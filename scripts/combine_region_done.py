@@ -34,8 +34,12 @@ for done_file in snakemake.input.done_files:
     snp_positions = "n/a"
     region = "n/a"
     segment = "n/a"
-    start_coord = "n/a"
-    end_coord = "n/a"
+
+    vdj_start_coord = "n/a"
+    vdj_end_coord = "n/a"
+    genome_start_coord = "n/a"
+    genome_end_coord = "n/a"
+
     strand = "n/a"
 
     pb_reads = "n/a"
@@ -68,11 +72,17 @@ for done_file in snakemake.input.done_files:
             elif line.startswith("Segment:"):
                 segment = clean_value(line.split(":", 1)[1])
 
-            elif line.startswith("Start coord:"):
-                start_coord = clean_value(line.split(":", 1)[1])
+            elif line.startswith("VDJ Start coord:"):
+                vdj_start_coord = clean_value(line.split(":", 1)[1])
 
-            elif line.startswith("End coord:"):
-                end_coord = clean_value(line.split(":", 1)[1])
+            elif line.startswith("VDJ End coord:"):
+                vdj_end_coord = clean_value(line.split(":", 1)[1])
+
+            elif line.startswith("Genome Start coord:"):
+                genome_start_coord = clean_value(line.split(":", 1)[1])
+
+            elif line.startswith("Genome End coord:"):
+                genome_end_coord = clean_value(line.split(":", 1)[1])
 
             elif line.startswith("Strand:"):
                 strand = clean_value(line.split(":", 1)[1])
@@ -100,7 +110,14 @@ for done_file in snakemake.input.done_files:
                         else:
                             ont_reads = value
 
-    key = (sample, shortname, start_coord, end_coord)
+    key = (
+        sample,
+        shortname,
+        vdj_start_coord,
+        vdj_end_coord,
+        genome_start_coord,
+        genome_end_coord,
+    )
 
     if key not in rows:
         rows[key] = {
@@ -112,8 +129,10 @@ for done_file in snakemake.input.done_files:
             "No reads ONT 100%": "n/a",
             "Region": "n/a",
             "Segment": "n/a",
-            "Start coord": "n/a",
-            "End coord": "n/a",
+            "VDJ Start coord": "n/a",
+            "VDJ End coord": "n/a",
+            "Genome Start coord": "n/a",
+            "Genome End coord": "n/a",
             "Strand": "n/a",
             "Target length": "n/a",
             "Target seq": "n/a",
@@ -139,11 +158,17 @@ for done_file in snakemake.input.done_files:
     if is_real_value(segment):
         rows[key]["Segment"] = segment
 
-    if is_real_value(start_coord):
-        rows[key]["Start coord"] = start_coord
+    if is_real_value(vdj_start_coord):
+        rows[key]["VDJ Start coord"] = vdj_start_coord
 
-    if is_real_value(end_coord):
-        rows[key]["End coord"] = end_coord
+    if is_real_value(vdj_end_coord):
+        rows[key]["VDJ End coord"] = vdj_end_coord
+
+    if is_real_value(genome_start_coord):
+        rows[key]["Genome Start coord"] = genome_start_coord
+
+    if is_real_value(genome_end_coord):
+        rows[key]["Genome End coord"] = genome_end_coord
 
     if is_real_value(strand):
         rows[key]["Strand"] = strand
@@ -174,8 +199,10 @@ df = df[
         "No reads ONT 100%",
         "Region",
         "Segment",
-        "Start coord",
-        "End coord",
+        "VDJ Start coord",
+        "VDJ End coord",
+        "Genome Start coord",
+        "Genome End coord",
         "Strand",
         "Target length",
         "Target seq",
